@@ -104,9 +104,10 @@ function emptyPose() {
 // amplia y elástica, y solo ella tiene inercia de pelo. La geometría del
 // cuerpo en sí vive en pixelFighterArt.js, no aquí.
 // Reposo de Samuel (coordenadas del sprite de 80x120): el puño de delante,
-// delante de la barriga; el de atrás, junto a la mandíbula.
-export const MEC_REST_F = [59, 68];
-export const MEC_REST_B = [61, 30];
+// adelantado a la altura de la cintura (guardia baja); el de atrás, colgando
+// junto a la cadera.
+export const MEC_REST_F = [64, 57];
+export const MEC_REST_B = [23, 69];
 
 export function computePoseForKind(kind, {
   t = 0, progress = 0, rising = true, h = 120, kit = 'default',
@@ -157,10 +158,12 @@ export function computePoseForKind(kind, {
       pose.headOffY = 1 + breathe * 1.1;
       pose.breath = -breathe;
       // POSTURA DE COMBATE en 3/4, con los brazos DESACOPLADOS (los dos
-      // iguales colgando era un maniquí): el de ATRÁS, detrás del pecho con
-      // el codo cerrado, asoma el puño junto a la mandíbula, listo para el
-      // directo; el de DELANTE, relajado, con el codo un poco doblado hacia
-      // atrás y el antebrazo y el puño por delante de la barriga. Los puños
+      // iguales colgando era un maniquí), uno a cada lado del cuerpo: el de
+      // ATRÁS, relajado, cuelga junto al costado con el codo un poco doblado
+      // hacia atrás y el puño junto a la cadera; el de DELANTE, en guardia
+      // baja, con el codo abajo junto al costado y el antebrazo hacia
+      // delante, el puño adelantado a la cintura. (Con el puño de atrás en
+      // la mandíbula, asomaba junto a la barba como un bulto.) Los puños
       // siguen al hombro al respirar.
       pose.guard = 0;
       // Marca de REPOSO: el kit la usa para la actitud del Despertar (pecho
