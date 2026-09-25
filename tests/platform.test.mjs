@@ -1513,16 +1513,20 @@ test('REPOSO: postura de combate en 3/4, brazos desacoplados; la guardia alta so
     return n;
   };
   // POSTURA DE COMBATE EN 3/4, en todo el ciclo del reposo. Los dos brazos
-  // iguales colgando (o cruzados) eran un maniquí de frente. Ahora:
-  // - hombros en perspectiva: el de delante a 13 px del eje, junto al cuello
-  //   y con su caída (a 15 y más alto era una joroba); el de atrás, escorzado
-  //   DETRÁS de la cabeza, a 6;
-  // - brazo de DELANTE relajado: cuelga (el brazo mide 17 + 16) con el codo
-  //   hacia ATRÁS, flexionado 35-80°, y el antebrazo y el puño por delante de
-  //   la barriga;
-  // - brazo de ATRÁS en guardia: el puño junto a la mandíbula, asomando por
-  //   delante de la cara, con el codo por debajo;
-  // - y los dos, a alturas bien distintas: nada de simetría.
+  // iguales colgando (o cruzados) eran un maniquí de frente; y con el hombro
+  // de atrás escondido detrás de la cabeza, el torso acababa en un hombro SIN
+  // brazo (un muñón) y el puño de atrás asomaba junto a la barba como un
+  // bulto. Ahora:
+  // - un brazo a cada LADO del cuerpo: el hombro de delante a 13 px del eje y
+  //   el de atrás en el borde de atrás del torso, a 14; los dos caen desde el
+  //   cuello (a 15 y más alto era una joroba);
+  // - brazo de ATRÁS relajado: cuelga junto al costado (el brazo mide
+  //   17 + 16) con el codo hacia ATRÁS, flexionado 35-80°, y el puño junto a
+  //   la cadera;
+  // - brazo de DELANTE en guardia baja: el codo abajo, detrás del puño, y el
+  //   antebrazo hacia delante, con el puño adelantado a la altura de la
+  //   cintura;
+  // - y los dos, distintos: uno cuelga y el otro no. Nada de simetría.
   const { armElbow, armHangs, mecanicoArms, ARM_UPPER, ARM_FORE } = await import('../public/src/engine/pixelFighterArt.js');
   assert.equal(ARM_UPPER + ARM_FORE, 33);
   const flexOf = (shoulder, elbow, fist) => {
@@ -1537,19 +1541,41 @@ test('REPOSO: postura de combate en 3/4, brazos desacoplados; la guardia alta so
     assert.equal(idle.guard, 0, `t=${t}`);
     const arms = mecanicoArms({ w: 80, pose: idle });
     assert.equal(arms.shoulderFront.x - arms.cx, 13, `t=${t}: hombro de delante`);
-    assert.equal(arms.cx - arms.shoulderBack.x, 6, `t=${t}: hombro de atrás, escorzado detrás de la cabeza`);
-    const drop = arms.shoulderFront.y - (31 + idle.torsoOffY);
-    assert.ok(drop >= 7 && drop <= 9, `t=${t}: el hombro cae desde el cuello (${drop.toFixed(1)})`);
+    assert.equal(arms.cx - arms.shoulderBack.x, 14, `t=${t}: hombro de atrás, en el borde del torso`);
+    for (const [s, name] of [[arms.shoulderFront, 'delante'], [arms.shoulderBack, 'atrás']]) {
+      const drop = s.y - (31 + idle.torsoOffY);
+      assert.ok(drop >= 7 && drop <= 9, `t=${t}: el hombro de ${name} cae desde el cuello (${drop.toFixed(1)})`);
+    }
     const F = arms.handFront;
     const B = arms.handBack;
-    assert.ok(armHangs(arms.shoulderFront, F), `t=${t}: el brazo de delante cuelga`);
-    assert.ok(F.x >= 55 && F.x <= 64 && F.y >= 62 && F.y <= 72, `t=${t}: puño de delante, delante de la barriga (${F.x.toFixed(1)}, ${F.y.toFixed(1)})`);
-    assert.ok(arms.elbowFront.x < arms.shoulderFront.x, `t=${t}: codo de delante hacia atrás (${arms.elbowFront.x.toFixed(1)})`);
-    const flex = flexOf(arms.shoulderFront, arms.elbowFront, F);
-    assert.ok(flex >= 35 && flex <= 80, `t=${t}: codo de delante un poco doblado (${flex.toFixed(0)}°)`);
-    assert.ok(B.y >= 26 && B.y <= 36 && B.x >= 58, `t=${t}: puño de atrás junto a la mandíbula (${B.x.toFixed(1)}, ${B.y.toFixed(1)})`);
-    assert.ok(arms.elbowBack.y > B.y + 6, `t=${t}: el codo de atrás, por debajo de su puño`);
-    assert.ok(F.y - B.y >= 25, `t=${t}: brazos desacoplados, no simétricos`);
+    assert.ok(armHangs(arms.shoulderBack, B), `t=${t}: el brazo de atrás cuelga`);
+    assert.ok(B.x >= 20 && B.x <= 27 && B.y >= 65 && B.y <= 73, `t=${t}: puño de atrás junto a la cadera (${B.x.toFixed(1)}, ${B.y.toFixed(1)})`);
+    assert.ok(arms.elbowBack.x < arms.shoulderBack.x, `t=${t}: codo de atrás hacia atrás (${arms.elbowBack.x.toFixed(1)})`);
+    const flexB = flexOf(arms.shoulderBack, arms.elbowBack, B);
+    assert.ok(flexB >= 35 && flexB <= 80, `t=${t}: codo de atrás un poco doblado (${flexB.toFixed(0)}°)`);
+    assert.ok(!armHangs(arms.shoulderFront, F), `t=${t}: el de delante NO cuelga: brazos desacoplados`);
+    assert.ok(F.x - arms.shoulderFront.x >= 8 && F.y >= 52 && F.y <= 62, `t=${t}: puño de delante adelantado, a la altura de la cintura (${F.x.toFixed(1)}, ${F.y.toFixed(1)})`);
+    assert.ok(arms.elbowFront.y > arms.shoulderFront.y + 10 && arms.elbowFront.x < F.x - 10, `t=${t}: codo de delante abajo y detrás del puño (${arms.elbowFront.x.toFixed(1)}, ${arms.elbowFront.y.toFixed(1)})`);
+    const flexF = flexOf(arms.shoulderFront, arms.elbowFront, F);
+    assert.ok(flexF >= 80 && flexF <= 120, `t=${t}: codo de delante en ángulo, el antebrazo hacia delante (${flexF.toFixed(0)}°)`);
+  }
+  // Y el brazo de atrás SE VE: por fuera del costado de atrás hay un brazo
+  // en sombra a lo largo de todo el brazo (antes, nada: el muñón).
+  const backArmPx = (pose) => {
+    const c = createCanvas(80, 120);
+    drawPixelFighter(c.getContext('2d'), { w: 80, h: 120, art: 'mecanico', pose });
+    let n = 0;
+    for (let y = 44; y < 68; y += 1) {
+      for (let x = 8; x < 22; x += 1) {
+        const i = (y * 80 + x) * 4;
+        if (c.data[i + 3] > 0.5 && [[0x96, 0x60, 0x3a], [0x6d, 0x42, 0x25]].some((q) => q.every((v, k) => Math.abs(c.data[i + k] - v) < 3))) n += 1;
+      }
+    }
+    return n;
+  };
+  for (const t of [0, 1.4]) {
+    const n = backArmPx(computePoseForKind('idle', { h: 120, kit: 'mecanico', t }));
+    assert.ok(n > 100, `t=${t}: el brazo de atrás, a la vista junto al costado (${n})`);
   }
   // La regla del codo: con la mano delante a la altura del hombro (guardia,
   // golpe), el codo va ABAJO; con la mano plegada bajo el hombro, hacia el
@@ -1562,6 +1588,11 @@ test('REPOSO: postura de combate en 3/4, brazos desacoplados; la guardia alta so
   assert.ok(swung.x < 55.5, `balanceo: el codo atrás (${swung.x.toFixed(1)})`);
   const folded = armElbow({ x: 25, y: 38 }, { x: 25, y: 54 }, 40);
   assert.ok(folded.x > 25, `plegado: hacia el torso, no hacia fuera (${folded.x.toFixed(1)})`);
+  // Con la mano ADELANTADA y más baja que el hombro (la guardia baja del
+  // reposo), el codo va ABAJO y atrás, junto al costado, y el antebrazo sale
+  // hacia delante; la otra solución lo subía por delante del hombro: alita.
+  const low = armElbow({ x: 53, y: 40 }, { x: 64, y: 57 }, 40);
+  assert.ok(low.y > 52 && low.x < 53, `guardia baja: el codo abajo, junto al costado (${low.x.toFixed(1)}, ${low.y.toFixed(1)})`);
   // Y el kit DIBUJA con esa regla: el codo del brazo de atrás no asoma por
   // fuera de la silueta ni colgando ni al recoger el puño del jab (con la
   // cadena doblando siempre al mismo lado, llegaba a x 6: el ala).
@@ -1574,11 +1605,14 @@ test('REPOSO: postura de combate en 3/4, brazos desacoplados; la guardia alta so
   };
   assert.ok(leftEdge(computePoseForKind('idle', { h: 120, kit: 'mecanico', t: 0 })) >= 10, 'reposo: sin ala');
   assert.ok(leftEdge(computePoseForKind('jab', { h: 120, kit: 'mecanico', progress: 0.2 })) >= 10, 'jab recogido: sin ala');
-  // Los golpes salen del reposo (y vuelven a él): el puño de delante abajo,
-  // delante de la barriga, y el de atrás en la mandíbula.
-  for (const kind of ['jab', 'bootkick', 'walk-fwd']) {
-    const pose = computePoseForKind(kind, { h: 120, kit: 'mecanico', progress: 0, t: 0.3 });
-    assert.ok(62 + pose.armFrontOffY >= 62 && 61 + pose.armBackOffY <= 36, `${kind}: sale del reposo`);
+  // Los golpes salen del reposo (y vuelven a él): el puño de delante
+  // adelantado a la altura de la cintura, en (64, 57), y el de atrás junto a
+  // la cadera, en (23, 69). (Las manos de base del kit: (61, 62) y (20, 61).)
+  for (const kind of ['jab', 'bootkick', 'wrencharc']) {
+    for (const progress of [0, 1]) {
+      const pose = computePoseForKind(kind, { h: 120, kit: 'mecanico', progress });
+      assert.deepEqual([61 + pose.armFrontOffX, 62 + pose.armFrontOffY, 20 + pose.armBackOffX, 61 + pose.armBackOffY].map(Math.round), [64, 57, 23, 69], `${kind} ${progress}: sale del reposo y vuelve a él`);
+    }
   }
   // En el JAB el brazo de delante se estira en horizontal y el de atrás se
   // queda protegiendo la barbilla.
@@ -1595,7 +1629,9 @@ test('REPOSO: postura de combate en 3/4, brazos desacoplados; la guardia alta so
     const w = walkAt(i * 0.13);
     fx.push(w.armFrontOffX);
     bx.push(w.armBackOffX);
-    assert.ok(62 + w.armFrontOffY >= 60 && 61 + w.armBackOffY <= 38, `andando: la postura del reposo (${i})`);
+    const fy = 62 + w.armFrontOffY;
+    const by = 61 + w.armBackOffY;
+    assert.ok(fy >= 53 && fy <= 58 && by >= 68 && by <= 72, `andando: la postura del reposo (${i}: ${fy.toFixed(1)}, ${by.toFixed(1)})`);
   }
   const span = (v) => Math.max(...v) - Math.min(...v);
   assert.ok(span(fx) >= 3.5 && span(fx) <= 6.5, `péndulo del brazo de delante: ±${(span(fx) / 2).toFixed(1)} px`);
@@ -1691,8 +1727,10 @@ test('BRAZOS: una extremidad de hombro a puño, sin jorobas, sin bíceps hinchad
   // Hombro y brazo, UNA pieza del mismo tono: alrededor del hombro no hay un
   // aro de sombra (el deltoides pintado como masa propia, con su sombra
   // alrededor, era una pieza de plástico suelta: 70 px de sombra frente a 30).
+  // (Solo en el de delante: el de atrás va entero en tonos de sombra y ese
+  // color es su propio borde a lo largo de todo el brazo.)
   const arms = mecanicoArms({ w: 80, pose: idle });
-  for (const s of [arms.shoulderBack, arms.shoulderFront]) {
+  for (const s of [arms.shoulderFront]) {
     let n = 0;
     for (let y = Math.round(s.y) - 7; y <= s.y + 7; y += 1) {
       for (let x = Math.round(s.x) - 7; x <= s.x + 7; x += 1) {
@@ -1717,7 +1755,12 @@ test('BRAZOS: una extremidad de hombro a puño, sin jorobas, sin bíceps hinchad
     for (const [e, sh, f, name] of [[a.elbowFront, a.shoulderFront, a.handFront, 'delante'], [a.elbowBack, a.shoulderBack, a.handBack, 'atrás']]) {
       const hand = f.x - sh.x;
       const elbow = e.x - sh.x;
-      if (!armHangs(sh, f) && Math.abs(hand) > 3) {
+      if (armHangs(sh, f) || Math.abs(hand) <= 3) continue;
+      if (hand > 0 && e.y > Math.max(sh.y, f.y) - 2) {
+        // Mano por delante con el codo ABAJO (la guardia baja): el codo puede
+        // quedar junto al costado, pero el antebrazo sale hacia DELANTE.
+        assert.ok(f.x - e.x >= 8, `${kind} ${JSON.stringify(o)}: brazo de ${name}, el antebrazo vuelve cruzado (mano ${f.x.toFixed(1)}, codo ${e.x.toFixed(1)})`);
+      } else {
         assert.ok(elbow * Math.sign(hand) >= -3, `${kind} ${JSON.stringify(o)}: brazo de ${name} en X (mano ${hand.toFixed(1)}, codo ${elbow.toFixed(1)})`);
       }
     }
@@ -1732,8 +1775,12 @@ test('BRAZOS: una extremidad de hombro a puño, sin jorobas, sin bíceps hinchad
   // La regla, sola: plegado con la mano abajo y hacia fuera, el codo va con
   // la mano (no hacia el eje); con la mano algo más abajo que el hombro sin
   // colgar, tampoco manda "el codo más bajo" si eso lo cruza.
-  const out = armElbow({ x: 53, y: 70 }, { x: 62, y: 84 }, 40);
-  assert.ok(out.x > 53, `plegado hacia fuera: el codo con la mano (${out.x.toFixed(1)})`);
+  const out = armElbow({ x: 27, y: 70 }, { x: 18, y: 84 }, 40);
+  assert.ok(out.x < 27, `plegado hacia fuera: el codo con la mano (${out.x.toFixed(1)})`);
+  // Por DELANTE y abajo, el codo tampoco sube por delante del hombro (la
+  // alita): baja junto al costado y el antebrazo sale hacia la mano.
+  const ahead = armElbow({ x: 53, y: 70 }, { x: 62, y: 84 }, 40);
+  assert.ok(ahead.y > 76 && 62 - ahead.x >= 8, `plegado hacia delante: el codo abajo (${ahead.x.toFixed(1)}, ${ahead.y.toFixed(1)})`);
   const low = armElbow({ x: 53, y: 51.5 }, { x: 58, y: 70.6 }, 40);
   assert.ok(low.x > 50, `mano baja: el codo no cruza (${low.x.toFixed(1)})`);
 });
@@ -1766,9 +1813,9 @@ test('CAPAS DE PROFUNDIDAD: brazo de atrás -> cuerpo -> brazo de delante, el de
   const base = draw(idle);
   assert.equal(diffIn(base, draw(backIn), ...chest), 0, 'el brazo de atrás va DETRÁS del torso');
   assert.ok(diffIn(base, draw(frontIn), ...chest) > 60, 'el brazo de delante va POR ENCIMA del torso');
-  // El de atrás, en SOMBRA: su puño asoma junto a la mandíbula sin un solo
-  // píxel de la piel con luz (#c98a5c, #e6b487) y con los tonos oscuros; el
-  // de delante sí lleva la piel con luz.
+  // El de atrás, en SOMBRA: su puño, junto a la cadera, sin un solo píxel de
+  // la piel con luz (#c98a5c, #e6b487) y con los tonos oscuros; el de
+  // delante, adelantado a la cintura, sí lleva la piel con luz.
   const count = (c, box, colors) => {
     const rgb = colors.map((hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)));
     let n = 0;
@@ -1780,12 +1827,12 @@ test('CAPAS DE PROFUNDIDAD: brazo de atrás -> cuerpo -> brazo de delante, el de
     }
     return n;
   };
-  const backFist = [58, 25, 68, 36];
-  const frontFist = [54, 63, 65, 75];
+  const backFist = [15, 62, 30, 76];
+  const frontFist = [57, 50, 71, 64];
   assert.equal(count(base, backFist, ['#c98a5c', '#e6b487']), 0, 'puño de atrás sin luz');
   assert.ok(count(base, backFist, ['#96603a', '#6d4225']) > 25, `puño de atrás en sombra: ${count(base, backFist, ['#96603a', '#6d4225'])}`);
   assert.ok(count(base, frontFist, ['#c98a5c', '#e6b487']) > 20, `puño de delante con luz: ${count(base, frontFist, ['#c98a5c', '#e6b487'])}`);
-  // Y la tinta del torso lo separa: entre el puño de atrás y el pecho hay
+  // Y la tinta del torso lo separa: entre el brazo de atrás y el costado hay
   // contorno (el torso se perfila por encima del brazo que pasa por detrás).
   const ink = (c, box) => {
     let n = 0;
@@ -1797,7 +1844,7 @@ test('CAPAS DE PROFUNDIDAD: brazo de atrás -> cuerpo -> brazo de delante, el de
     }
     return n;
   };
-  assert.ok(ink(base, [52, 30, 66, 42]) >= 8, `contorno entre el brazo de atrás y el cuerpo: ${ink(base, [52, 30, 66, 42])}`);
+  assert.ok(ink(base, [16, 44, 26, 62]) >= 8, `contorno entre el brazo de atrás y el cuerpo: ${ink(base, [16, 44, 26, 62])}`);
   // Despertado: la manga de la camiseta tapa el bíceps del brazo de delante.
   const { mecanicoArms } = await import('../public/src/engine/pixelFighterArt.js');
   const a = mecanicoArms({ w: 80, pose: idle, awake: true });
@@ -3726,11 +3773,11 @@ test('DESPERTADO: actitud DESAFIANTE en reposo (pecho fuera, barbilla alta), sin
   };
   // Los brazos cruzados sobre el pecho (un bloque blanco inflado con dos
   // muñones) se fueron: con la actitud el pecho sigue siendo camiseta y el
-  // puño de delante está donde en el reposo, delante de la barriga.
+  // puño de delante está donde en el reposo, adelantado a la cintura.
   const proud = draw('awakened', true);
   const plain = draw('awakened', false);
-  const chest = [28, 38, 56, 54];
-  const fist = [50, 60, 66, 76];
+  const chest = [28, 38, 44, 52];
+  const fist = [56, 50, 72, 64];
   assert.ok(skin(proud, ...chest) < 10, `sin brazos cruzados: el pecho es camiseta (${skin(proud, ...chest)})`);
   assert.ok(skin(proud, ...fist) > 25, `el puño de delante, delante de la barriga (${skin(proud, ...fist)})`);
   assert.ok(Math.abs(skin(proud, ...fist) - skin(plain, ...fist)) <= 12, 'los brazos no cambian con la actitud');

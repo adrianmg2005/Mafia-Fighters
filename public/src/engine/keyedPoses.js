@@ -40,12 +40,13 @@ const REST_F = [61, 62];
 const REST_B = [20, 61];
 export const GUARD_F = [65, 35];
 export const GUARD_B = [58, 29];
-// Reposo en el suelo: brazos CAÍDOS a los lados, con el codo un poco
-// flexionado (la mano no llega a estirar el brazo) y el puño cerrado junto a
-// la cadera, por fuera del cuerpo. Es de donde salen y adonde vuelven los
-// golpes de suelo, igual que el idle.
-export const HANG_F = [59, 68];
-export const HANG_B = [61, 30];
+// Reposo en el suelo, el mismo del idle (MEC_REST_F/B en poseLibrary.js): el
+// brazo de delante en guardia baja, con el puño adelantado a la cintura, y
+// el de atrás colgando junto al costado, con el codo un poco flexionado y el
+// puño junto a la cadera. Es de donde salen y adonde vuelven los golpes de
+// suelo.
+export const HANG_F = [64, 57];
+export const HANG_B = [23, 69];
 
 const G = { F: HANG_F, B: HANG_B };
 // En el aire, la guardia: los puños arriba (igual que la pose de salto).

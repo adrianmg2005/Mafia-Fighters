@@ -1132,16 +1132,21 @@ export function armHangs(shoulder, hand) {
  * cadena, la anatómica. Con la mano a la altura del hombro o más arriba
  * (guardia, golpes), la que queda claramente más ABAJO: el codo apunta al
  * suelo, pegado a las costillas. Colgando, hacia ATRÁS (la flexión natural
- * de un brazo caído). Plegado con la mano más abajo, del lado de la mano
- * (hacia el eje del torso `cx` si está justo debajo). Nunca abierto hacia
- * fuera con la mano dentro (alitas de pollo) ni hacia dentro con la mano
- * fuera (el antebrazo vuelve cruzado: brazos en X, pinzas de cangrejo).
+ * de un brazo caído). Con la mano ADELANTADA y más baja que el hombro (la
+ * guardia baja del reposo), también la más baja: el codo junto al costado y
+ * el antebrazo hacia delante; la otra lo subía por delante del hombro. Si
+ * no, plegado con la mano más abajo, del lado de la mano (hacia el eje del
+ * torso `cx` si está justo debajo). Nunca abierto hacia fuera con la mano
+ * dentro (alitas de pollo) ni hacia dentro con la mano fuera (el antebrazo
+ * vuelve cruzado: brazos en X, pinzas de cangrejo).
  */
 export function armElbow(shoulder, hand, cx) {
   const a = joint(shoulder.x, shoulder.y, hand.x, hand.y, ARM_UPPER, ARM_FORE, 1);
   const b = joint(shoulder.x, shoulder.y, hand.x, hand.y, ARM_UPPER, ARM_FORE, -1);
   if (hand.y - shoulder.y < 10 && Math.abs(a.y - b.y) > 4) return a.y > b.y ? a : b;
   if (armHangs(shoulder, hand)) return a.x <= b.x ? a : b;
+  const ahead = hand.x - shoulder.x;
+  if (ahead > 3 && ahead > (hand.y - shoulder.y) * 0.5) return a.y > b.y ? a : b;
   // Plegado: el codo, del MISMO lado que la mano (con la mano hacia fuera y
   // el codo hacia dentro, el antebrazo volvía cruzándose: brazos en X);
   // con la mano justo debajo, hacia el eje del torso.
@@ -1185,10 +1190,13 @@ export function mecanicoArms({ w, pose, awake = false }) {
   const breath = pose.breath || 0;
   // PERSPECTIVA 3/4 DE COMBATE: el hombro de delante, junto a la base del
   // cuello y hacia la cámara (a 13 px del eje, con su caída; a 15 y más alto
-  // era una joroba); el de ATRÁS, escorzado DETRÁS de la cabeza (a 6 px del
-  // eje). Con los dos a la misma distancia el cuerpo se leía plano, de
-  // frente, con dos brazos iguales: un maniquí.
-  const shoulderBack = { x: cx - 6 + lean, y: top + 7 - breath * 0.6 };
+  // era una joroba); el de ATRÁS, en el borde de atrás del torso (a 14 px),
+  // con su brazo colgando por ese lado. Escondido detrás de la cabeza (a 6),
+  // el torso acababa en un hombro sin brazo, un muñón, y el puño de atrás
+  // asomaba junto a la barba como un bulto. En GUARDIA el torso gira hacia
+  // el perfil y ese hombro se va detrás de la cabeza (a 6 en guardia plena):
+  // desde el borde, el brazo no llega a la mandíbula sin estirarse entero.
+  const shoulderBack = { x: cx + mix(-14, -6) + lean, y: top + mix(8, 7) - breath * 0.6 };
   const shoulderFront = { x: cx + 13 + lean, y: top + 8 - breath * 0.6 };
   // Manos: reposo bajo (el del kit original) -> guardia, más el offset. En
   // guardia, el puño de delante adelantado a la altura de la barbilla y el
