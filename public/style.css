@@ -1,0 +1,44 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000; /* barras de letterbox/pillarbox: negro puro y limpio */
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', monospace;
+  color: #e6e6e6;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* El tamaño real en pantalla lo fija engine/viewport.js (mantiene 16:9 y
+   hace de letterbox/pillarbox); aquí solo se garantiza que el escalado sea
+   nítido sin importar cuánto se estire el canvas. */
+#game-canvas {
+  display: block;
+  background: #000;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}

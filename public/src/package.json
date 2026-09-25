@@ -1,0 +1,4 @@
+{
+  "type": "module",
+  "//": "Marca el arbol del cliente como ESM para que Node (tests y utilidades de horneado) pueda importar los mismos modulos que el navegador. El navegador no lee este archivo: ya carga con type=module desde index.html."
+}

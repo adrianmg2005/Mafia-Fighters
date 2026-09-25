@@ -1,0 +1,26 @@
+{
+  "name": "mafiafighters",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "stage:png": "node tests/renderStage.mjs",
+    "sprite:png": "node tests/renderSprite.mjs",
+    "moves:png": "node tests/renderMoves.mjs",
+    "vfx:png": "node tests/renderVfx.mjs",
+    "cutin:png": "node tests/renderCutin.mjs",
+    "smoke": "node tests/mainSmoke.mjs",
+    "moves:despertado:png": "node tests/renderMoves.mjs --despertado",
+    "battle:png": "node tests/renderBattle.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
